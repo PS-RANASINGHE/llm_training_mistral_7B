@@ -134,3 +134,236 @@ Next I am using PyTorch and the Transformers library to load a LLM specifically 
 | **FP64**         | Very High (64 bits)    | Slow                    | Very High                 | Scientific computing, High precision tasks         | High-performance servers   | Rarely used in LLMs        |
 | **Mixed Precision (FP16 & FP32)** | Low (due to FP16) | Faster (due to FP16) | High (using FP32 for some operations) | Accelerating training while maintaining accuracy  | All GPUs (especially NVIDIA Tensor Cores) | Ideal for large models requiring stability |
 | **INT4**         | Extremely Low (4 bits) | Extremely Fast          | Very Low                  | Ultra-low precision for inference                  | Limited support            | For highly compressed models |
+
+
+
+
+```py
+tokenizer = AutoTokenizer.from_pretrained(
+    base_model_id,
+    padding_side="left",
+    add_eos_token=True,
+    add_bos_token=True,
+)
+tokenizer.pad_token = tokenizer.eos_token
+
+def generate_and_tokenize_prompt(prompt):
+    return tokenizer(formatting_func(prompt))
+```
+
+Here I am using the `AutoTokenizer` from Hugging Face's Transformers library to load a pre-trained tokenizer for my model using the `base_model_id`. I set the tokenizer to pad sequences on the left `padding_side="left"` to match the model's expected input format. Additionally I add the End-of-Sequence (EOS) token and the Beginning-of-Sequence (BOS) token to the tokenizer to handle the start and end of each input sequence appropriately. After loading the tokenizer I assign the EOS token as the padding token `tokenizer.pad_token = tokenizer.eos_token` which ensures that any padding tokens used during batching are consistent with the EOS token. Lastly I define a function `generate_and_tokenize_prompt` which takes a prompt, applies a formatting function to it and then tokenizes the result using the previously defined tokenizer. This function ensures that any input prompt is properly formatted and tokenized before being fed into the model for generation.
+
+
+```py
+tokenized_train_dataset = train_dataset.map(generate_and_tokenize_prompt)
+tokenized_val_dataset = eval_dataset.map(generate_and_tokenize_prompt)
+```
+I use the `map()` function to process both the training and validation datasets. I apply `generate_and_tokenize_prompt` to each dataset. This function is responsible for transforming the raw input data into tokenized prompts that are suitable for training the model. By using `tokenized_train_dataset = train_dataset.map(generate_and_tokenize_prompt)` I make sure that each example in the training dataset is tokenized and prepared for model input.
+
+I in summary here i have set the `max_length` to 512, as it was an appropriate length for my dataset. The function `generate_and_tokenize_prompt2` takes a prompt applies a formatting function to it and then passes it through the tokenizer. Inside the tokenizer I enabled truncation to ensure that input sequences longer than 512 tokens are shortened while any sequences shorter than 512 tokens are padded to the maximum length. Additionally I assign the `input_ids` to the labels field. This is typically done for tasks like language modeling where the model learns to predict the next token in the sequence. Finally the function returns the tokenized result, ready for input into the model for training or inference. Then the 2 datasets are the mapped as previous accirding to this function 
+
+
+```py
+max_length = 512 # This was an appropriate max length for my dataset
+
+def generate_and_tokenize_prompt2(prompt):
+    result = tokenizer(
+        formatting_func(prompt),
+        truncation=True,
+        max_length=max_length,
+        padding="max_length",
+    )
+    result["labels"] = result["input_ids"].copy()
+    return result
+
+tokenized_train_dataset = train_dataset.map(generate_and_tokenize_prompt2)
+tokenized_val_dataset = eval_dataset.map(generate_and_tokenize_prompt2)
+```
+```py
+eval_prompt = " I want to use device 175. What are the specification of it # "
+# Init an eval tokenizer that doesn't add padding or eos token
+eval_tokenizer = AutoTokenizer.from_pretrained(
+    base_model_id,
+    add_bos_token=True,
+)
+
+model_input = eval_tokenizer(eval_prompt, return_tensors="pt").to("cuda")
+
+model.eval()
+with torch.no_grad():
+    print(eval_tokenizer.decode(model.generate(**model_input, max_new_tokens=256, repetition_penalty=1.15)[0], skip_special_tokens=True))
+```
+
+Before I start training i want to check how the base model works. So I sent a basic prompt as mentioned above. In this code I initialize an evaluation tokenizer using the `AutoTokenizer` class from Hugging Face's transformers library making sure it doesn't add any padding or EOS tokens by setting `add_bos_token=True`. This is crucial because I don't want additional tokens during the evaluation phase, ensuring the input sequence is processed as intended. After that, I tokenize the evaluation prompt, convert it into tensor format and move it to the GPU using `.to("cuda")` to speed up the computation. I set the model into evaluation mode using `model.eval()` which disables certain training-specific operations like dropout. Then I generate the model’s output by passing the tokenized input to the model with model.generate(). I also specify a max_new_tokens=256 limit for the generated text and a `repetition_penalty=1.15` to discourage repetitive text generation. After the model generates the output I decode the generated tokens back into text using the tokenizer's `decode()` function, and `skip_special_tokens=True` ensures that any special tokens like padding or EOS tokens are excluded from the final output. Finally, the generated output is printed, providing the result of the evaluation prompt in a human-readable form.
+
+So the output generated is as follows. It is clear that it is not even close to been usable.
+
+```cmd
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+I want to use tosibox 175. What are the specification of it # 2018-04-19
+
+I am using a Toshiba Satellite L635D-S7000 laptop with Windows 7 Home Premium (64 bit). The computer is about two years old and has been working fine until recently when I started getting an error message that says "Windows cannot access the specified device, path or file. You may not have the appropriate permissions to access the item." This happens whenever I try to open any program on my computer. I have tried restarting my computer several times but this does not fix the problem. I also tried running a system scan for viruses but nothing was found. Any help would be greatly appreciated!
+
+```
+```py
+from peft import prepare_model_for_kbit_training
+
+model.gradient_checkpointing_enable()
+model = prepare_model_for_kbit_training(model)
+```
+I am enabling gradient checkpointing and preparing the model for `k-bit` training using the **PEFT (Parameter Efficient Fine-Tuning)** library. First I call `model.gradient_checkpointing_enable()` to enable gradient checkpointing, a technique that helps save memory during training. By not storing intermediate activations during the forward pass and instead recomputing them during the backward pass, I can significantly reduce GPU memory usage which is crucial when training large models. Then I use the function `prepare_model_for_kbit_training(model)` from **PEFT**. This prepares the model for **k-bit training** which reduces the memory footprint by storing model weights in lower precision formats like `8-bit` or `4-bit`. PEFT is a library designed to enable fine-tuning large models more efficiently, without the need to fine-tune all the parameters. It offers methods for tuning only a small subset of parameters while keeping the rest frozen, which reduces computational cost and memory usage. By using techniques like low-bit quantization `k-bit precision` **PEFT** allows for faster training lower memory consumption and more efficient use of resources when working with large models. This is especially important for deploying large language models like Mistral 7B or similar models in resource-constrained environments where optimizing memory and computational efficiency is key.
+
+```py
+def print_trainable_parameters(model):
+    """
+    Prints the number of trainable parameters in the model.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
+    )
+```
+I define `print_trainable_parameters(model)` which is designed to calculate and display the number of trainable parameters in a model as well as the total number of parameters. The function starts by initializing two variables: trainable_params to track the number of parameters that require gradients and all_param to track the total number of parameters in the model. Then I iterate over each parameter in the model using `model.named_parameters()` which returns both the name and the parameter tensor. For each parameter, I add its size to all_param, and if the parameter requires gradients (ie it is trainable) I also add its size to `trainable_params`. Finally I print the results: the number of trainable parameters, the total number of parameters, and the percentage of parameters that are trainable, calculated as the ratio of `trainable_params` to `all_param` multiplied by 100. This gives a useful overview of how much of the model is trainable during the fine-tuning process.
+
+This is useful for me to get an idea what I can train and what are the trainable parameters in our model.
+
+```py
+from peft import LoraConfig, get_peft_model
+
+config = LoraConfig(
+    r=32,
+    lora_alpha=64,
+    target_modules=[
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+        "lm_head",
+    ],
+    bias="none",
+    lora_dropout=0.05,  # Conventional
+    task_type="CAUSAL_LM",
+)
+
+model = get_peft_model(model, config)
+print_trainable_parameters(model)
+```
+In this code, I’m using **LoRA (Low-Rank Adaptation)**, a technique designed to make fine-tuning large models more efficient by introducing low-rank matrices into certain layers of the model. LoRA reduces the memory and computational burden during fine-tuning by allowing us to update only a small set of parameters, rather than the entire model. Specifically, **LoRA** adds low-rank adapters to pre-trained models, focusing on the weights of specific modules. In this case, I specify the `target_modules`, such as `q_proj`, `k_proj`, `v_proj`, and others, which are key components of the model’s attention mechanism. By applying LoRA to these layers, only the low-rank matrices in these modules will be trained, while the rest of the model's parameters remain frozen, leading to faster and more memory-efficient training. 
+
+The **LoRA configuration** is set with `r=32`, determining the rank of the low-rank matrices, which controls the amount of learned information during fine-tuning. A higher rank allows the model to adapt more complex patterns, while a lower rank keeps the adaptation lightweight. The `lora_alpha=64` scales the low-rank updates, allowing for flexibility in adjusting the magnitude of the adaptations. The `lora_dropout=0.05` adds some regularization by dropping a fraction of the low-rank connections during training, reducing the risk of overfitting. The `bias="none"` setting means that the bias terms in the target modules are not adapted, which can sometimes help reduce unnecessary complexity.
+
+By calling `get_peft_model(model, config)` I integrate the LoRA modifications into the model, making it more efficient while retaining the benefits of large pre-trained models. Finally, I use `print_trainable_parameters(model)` to print the model's trainable parameters, helping me keep track of how much of the model has been adapted using LoRA. This technique is especially beneficial when dealing with very large models, such as transformer-based architectures, where full fine-tuning would otherwise be prohibitively expensive in terms of both memory and computation.
+
+```py
+if torch.cuda.device_count() > 1: # If more than 1 GPU
+    model.is_parallelizable = True
+    model.model_parallel = True
+
+model = accelerator.prepare_model(model)
+```
+Here i am checking if my system has more than one GPU by using `torch.cuda.device_count()`. If the condition is true I set the `model.is_parallelizable` flag to True which indicates that the model can be parallelized across multiple devices. Additionally I enable `model.model_parallel` allowing the model to split its computations across the GPUs ensuring that the training process can leverage the power of multiple GPUs to accelerate the model's performance. This setup is especially useful for training large models that can't fit entirely on a single GPU, allowing them to be distributed efficiently across multiple devices.
+
+```py
+import transformers
+from datetime import datetime
+import gc
+
+project = "journal-finetune"
+base_model_name = "mistral"
+run_name = base_model_name + "-" + project
+output_dir = "./" + run_name
+
+trainer = transformers.Trainer(
+    model=model,
+    train_dataset=tokenized_train_dataset,
+    eval_dataset=tokenized_val_dataset,
+    args=transformers.TrainingArguments(
+        output_dir=output_dir,
+        warmup_steps=25,
+        per_device_train_batch_size=16,
+        gradient_accumulation_steps=8,
+        gradient_checkpointing=True,
+        max_steps=1500,
+        learning_rate=5e-6, # Want a small lr for finetuning
+        num_train_epochs=30,
+        weight_decay=0.01,
+        bf16=True,
+        optim="paged_adamw_8bit",
+        logging_steps=25,            
+        logging_dir="./logs",        
+        save_strategy="steps",       
+        save_steps=25,                
+        load_best_model_at_end=True,
+        metric_for_best_model="eval_loss",
+        evaluation_strategy="steps", 
+        eval_steps=25,               
+        do_eval=True,                
+        report_to="wandb",           
+        run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"          
+    ),
+    data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False),
+)
+
+model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
+
+trainer.train()
+```
+In this code I am using the **Hugging Face Transformers** library to fine-tune the **Mistral** model. The **Trainer** is initialized with the pre-trained model, the tokenized training and validation datasets, and the necessary training arguments. Here’s an explanation of the functionality of each parameter.
+
+#### Key Components
+
+1. **Model and Dataset Setup**:
+   - The model is set with the pre-trained `mistral` model.
+   - The `train_dataset` and `eval_dataset` are the tokenized training and validation datasets.
+
+2. **Training Arguments (`TrainingArguments`)**:
+   - **`output_dir`**: The directory where the model checkpoints and logs will be stored. It is dynamically named based on the model and project (`"./mistral-journal-finetune"`).
+   - **`warmup_steps=25`**: The number of steps during which the learning rate will be gradually increased. This prevents the model from making large updates at the beginning of training.
+   - **`per_device_train_batch_size=16`**: The batch size that is processed on each device (e.g., GPU). A batch size of 16 is chosen here to ensure efficient training without overloading memory.
+   - **`gradient_accumulation_steps=8`**: Instead of updating the model after each batch, gradients are accumulated over 8 steps, which effectively increases the batch size without requiring additional memory.
+   - **`gradient_checkpointing=True`**: This helps save memory by not storing intermediate activations during the forward pass, which will be recomputed during the backward pass.
+   - **`max_steps=1500`**: The total number of steps for training. This ensures that the training process doesn’t run indefinitely.
+   - **`learning_rate=5e-6`**: A small learning rate is used for fine-tuning, as large models like Mistral require careful adjustments to avoid destabilizing training.
+   - **`num_train_epochs=30`**: The model will be trained for 30 epochs. Given the use of a pre-trained model, fewer epochs may be sufficient.
+   - **`weight_decay=0.01`**: This regularization technique prevents overfitting by penalizing large weights during training.
+   - **`bf16=True`**: This enables **bfloat16 precision**, which speeds up training while using less memory, ideal for large models like Mistral.
+   - **`optim="paged_adamw_8bit"`**: The optimizer used is **AdamW**, with **8-bit precision** to reduce memory usage during training.
+   - **`logging_steps=25`**: Logs are reported every 25 steps. This includes training and evaluation metrics, allowing us to track progress.
+   - **`logging_dir="./logs"`**: The directory where logs will be stored.
+   - **`save_strategy="steps"`**: Checkpoints are saved every step, ensuring that we don't lose progress in case of interruptions.
+   - **`save_steps=25`**: The model is saved every 25 steps, and the best model (based on evaluation loss) will be stored.
+   - **`load_best_model_at_end=True`**: Ensures that the best model (based on the evaluation loss) is loaded at the end of training.
+   - **`metric_for_best_model="eval_loss"`**: The metric used to determine the best model is the **evaluation loss**.
+   - **`evaluation_strategy="steps"`**: The model will be evaluated at regular intervals based on the specified number of steps.
+   - **`eval_steps=25`**: Evaluations will be performed every 25 steps, allowing us to track how well the model is performing during training.
+   - **`do_eval=True`**: Enables evaluation during training.
+   - **`report_to="wandb"`**: Logs the training process to **Weights and Biases** (W&B) for tracking experiments, metrics, and visualizations.
+   - **`run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"`**: This dynamically names the W&B run, incorporating the timestamp to avoid overwriting previous runs.
+
+3. **Data Collator (`DataCollatorForLanguageModeling`)**:
+   - **`data_collator`**: This parameter specifies how the dataset will be prepared for the model. Here, **`DataCollatorForLanguageModeling`** is used, which prepares the data for a **language modeling task**. The `mlm=False` indicates that this task is not a masked language modeling task.
+
+4. **Disable Model Caching**:
+   - **`model.config.use_cache = False`**: Caching is disabled during training to avoid unnecessary memory usage. This is particularly important during fine-tuning, as the model is already pre-trained, and caching could lead to excessive memory consumption.
+
+5. **Training the Model**:
+   - Finally, the model is trained using the **`trainer.train()`** method, which will execute the training loop based on the configuration specified in the `TrainingArguments`.
+
+
+
+
+
+
+
+
+
+
+
