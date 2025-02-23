@@ -1,2 +1,11 @@
-# llm_training_mistral_7B
-This Repo contains the training of mistral 7B regarding to Networking 
+# Explaination of the code 
+
+Import the following libraries 
+
+´´´python
+!pip install -q -U bitsandbytes
+!pip install -q -U git+https://github.com/huggingface/transformers.git
+!pip install -q -U git+https://github.com/huggingface/peft.git
+!pip install -q -U git+https://github.com/huggingface/accelerate.git
+!pip install -q -U datasets scipy ipywidgets matplotlib
+´´´
