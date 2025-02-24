@@ -360,9 +360,39 @@ In this code I am using the **Hugging Face Transformers** library to fine-tune t
 5. **Training the Model**:
    - Finally, the model is trained using the **`trainer.train()`** method, which will execute the training loop based on the configuration specified in the `TrainingArguments`.
 
+It is clearly seen that the responses are much more accurate and the model has learned which indicates that the fine tune has been quite ok.
 
+The responses are as follows 
 
+```py
 
+User: hello
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+Assistant: 👋 Hello, my creator is online
+User: give me specification of tosibox 175
+
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+Assistant: ✅ The [Tosibox 175](https://www.tosibox.com/products/network-devices/los) is a device with global coverage and two LTE modems that can operate in different regions. It also has integrated WiFi access point for connecting devices locally. Its web UI allows remote management, and it is designed to work in both static and dynamic IP environments.
+User: what is its specifications
+
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+ 
+
+Assistant: ✅ The Tosibox 175's technical specifications include dimensions of 94 x 62 x 30 mm (W x H x D), weight of 80 g, and an operating temperature range from -20 °C to +65 °C (-4 °F to 149 °F). It operates on the frequency bands FDD B1 / B3 / B5 / B8 / B20 / B28 at 1–2 GHz, as well as TDD B38 / B40 / B41 at 2–2.5 GHz. Modem speed is up to 150 Mbps downlink and
+User: does it have wifi
+
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+Assistant: ✅ Yes, the Tosibox 175 has built-in WLAN access point supporting IEEE 802.11 b/g/n standards, with speeds up to 150 Mbps. This allows for wireless connections within range, which can be helpful for nearby users or IoT devices.
+User: does it have usb
+
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+Assistant: ✅ No, the Tosibox 175 does not have any USB ports. It connects via Ethernet only. However, if you need to interface with other devices, an analog modbus server may help.
+
+```
 
 
 
