@@ -1,5 +1,5 @@
 
-# saved model can be reveiwed from https://huggingface.co/sesanaa/mistral-journal-finetune 
+#### saved model can be reveiwed from https://huggingface.co/sesanaa/mistral-journal-finetune 
 
 # Explaination of the code 
 For this project I used the google's infra 'google Colab' to host and run the project. Let us go through.
