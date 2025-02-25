@@ -1,6 +1,43 @@
 
 #### Note - Saved model can be reveiwed from https://huggingface.co/sesanaa/mistral-journal-finetune 
 
+Note - As for some reasons I have make this model private. In order to download the model there should be a token generated from the user. 
+
+In this project I have used Mistral AI 7B as the base model and a dataset that is used to finetune.
+
+Why Mistral AI is Better for Fine-Tuning:
+1. Open-Weight Models – Mistral AI releases its models with open weights, allowing full customization and fine-tuning without restrictions. This makes it an ideal choice for developers who need to adapt models to specific tasks or industries.
+2. High Performance with Fewer Parameters – Despite having fewer parameters, Mistral models achieve performance comparable to or superior to larger models like LLaMA. This efficiency translates to faster training, lower costs, and reduced hardware requirements.
+3. Advanced Attention Mechanisms – Mistral integrates optimizations such as Grouped Query Attention (GQA) and Sliding Window Attention (SWA), improving both inference speed and the model’s ability to process longer sequences, which is crucial for fine-tuning tasks.
+4. Portability and Deployment Versatility – Mistral models can be deployed across various environments, including cloud services, local servers, and on-premise hardware. This flexibility makes them an attractive choice for businesses with strict data governance needs.
+5. Optimized for Resource Efficiency – Fine-tuning Mistral models requires fewer computational resources compared to LLaMA models with similar capabilities. This reduces operational costs while maintaining strong language generation performance.
+
+In here i have manually tested how the model performs in generation of answers for user questions before and after fine tuning. Also another method that I can use to improve performance is Retrieval-Augmented Generation (RAG).
+
+Retrieval-Augmented Generation (RAG)**
+RAG enhances language models by integrating an external retrieval mechanism, allowing dynamic access to relevant knowledge.
+
+### **Benefits of RAG**
+- **Better Domain-Specific Accuracy**: Model can fetch the latest data rather than relying on outdated parameters.
+- **Reduced Hallucinations**: Answers are grounded in retrieved documents, improving reliability.
+- **Scalability**: Works across multiple domains without requiring new fine-tuning.
+- **Lower Compute Cost**: No need for large-scale retraining; retrieval is handled separately.
+
+---
+
+## **3. Fine-Tuning vs. RAG: A Comparison**
+
+| Feature           | Fine-Tuning | RAG |
+|------------------|------------|-----|
+| **Customization** | Static model trained on a dataset | Dynamic retrieval of external knowledge |
+| **Resource Cost** | High (GPU-intensive) | Lower (retrieves at runtime) |
+| **Flexibility** | Requires retraining for updates | Can update knowledge dynamically |
+| **Performance** | Strong for specific tasks | Versatile, can adapt to multiple domains |
+| **Latency** | Low once trained | Slightly higher due to retrieval process |
+
+**💡 Best Practice:** Use a **hybrid approach** by fine-tuning for core improvements and using RAG for real-time knowledge retrieval.
+
+
 # Explaination of the code 
 For this project I used the google's infra 'google Colab' to host and run the project. Let us go through.
 
