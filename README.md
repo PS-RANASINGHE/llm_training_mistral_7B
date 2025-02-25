@@ -1,7 +1,7 @@
 
 #### Note - Saved model can be reveiwed from https://huggingface.co/sesanaa/mistral-journal-finetune 
 
-Note - As for some reasons I have make this model private. In order to download the model there should be a token generated from the user. 
+
 
 In this project I have used Mistral AI 7B as the base model and a dataset that is used to finetune.
 
