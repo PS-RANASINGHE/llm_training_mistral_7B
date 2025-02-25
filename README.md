@@ -38,7 +38,7 @@ RAG enhances language models by integrating an external retrieval mechanism, all
 
 **💡 Best Practice:** Use a **hybrid approach** by fine-tuning for core improvements and using RAG for real-time knowledge retrieval.
 
-Basically in RAG what it does is retrieves the exact data from somewhere(probably a database or wifi page) does some content scraping and generate nice texts as it has trained before. This is better where you need an accurate 100% output everytime. 
+Basically in RAG what it does is retrieves the exact data from somewhere(probably a database or wiki page) does some content scraping and generate nice texts as it has trained before. This is better where you need an accurate 100% output everytime. 
 
 # Explaination of the code 
 For this project I used the google's infra 'google Colab' to host and run the project. Let us go through.
