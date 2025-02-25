@@ -14,7 +14,8 @@ Why Mistral AI is Better for Fine-Tuning:
 
 In here i have manually tested how the model performs in generation of answers for user questions before and after fine tuning. Also another method that I can use to improve performance is Retrieval-Augmented Generation (RAG).
 
-Retrieval-Augmented Generation (RAG)**
+**Retrieval-Augmented Generation (RAG)**
+
 RAG enhances language models by integrating an external retrieval mechanism, allowing dynamic access to relevant knowledge.
 
 ### **Benefits of RAG**
@@ -37,6 +38,7 @@ RAG enhances language models by integrating an external retrieval mechanism, all
 
 **💡 Best Practice:** Use a **hybrid approach** by fine-tuning for core improvements and using RAG for real-time knowledge retrieval.
 
+Basically in RAG what it does is retrieves the exact data from somewhere(probably a database or wifi page) does some content scraping and generate nice texts as it has trained before. This is better where you need an accurate 100% output everytime. 
 
 # Explaination of the code 
 For this project I used the google's infra 'google Colab' to host and run the project. Let us go through.
