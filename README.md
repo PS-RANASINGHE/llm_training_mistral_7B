@@ -25,7 +25,7 @@ RAG enhances language models by integrating an external retrieval mechanism, all
 
 ---
 
-## **3. Fine-Tuning vs. RAG: A Comparison**
+### Fine-Tuning vs. RAG: A Comparison**
 
 | Feature           | Fine-Tuning | RAG |
 |------------------|------------|-----|
