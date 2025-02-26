@@ -40,6 +40,14 @@ RAG enhances language models by integrating an external retrieval mechanism, all
 
 Basically in RAG what it does is retrieves the exact data from somewhere(probably a database or wiki page) does some content scraping and generate nice texts as it has trained before. This is better where you need an accurate 100% output everytime. 
 
+For more information
++ https://www.researchgate.net/publication/385009890_A_Comprehensive_Survey_of_Retrieval-Augmented_Generation_RAG_Evolution_Current_Landscape_and_Future_Directions
++ https://www.researchgate.net/figure/Accuracy-Metrics-for-Baseline-and-Enhanced-RAG-Models_tbl2_381916508
+
+To practice these might be some good references in deploying RAG
++ https://github.com/alfredodeza/learn-retrieval-augmented-generation?utm_source=chatgpt.com
+  
+
 # Explaination of the code 
 For this project I used the google's infra 'google Colab' to host and run the project. Let us go through.
 
