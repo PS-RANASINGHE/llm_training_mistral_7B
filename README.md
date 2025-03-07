@@ -44,11 +44,11 @@ For more information
 + https://www.researchgate.net/publication/385009890_A_Comprehensive_Survey_of_Retrieval-Augmented_Generation_RAG_Evolution_Current_Landscape_and_Future_Directions
 + https://www.researchgate.net/figure/Accuracy-Metrics-for-Baseline-and-Enhanced-RAG-Models_tbl2_381916508
 
-To practice these might be some good references in deploying RAG
+I have tried using the OpenAI's GPT 3.5 turbo. The code is mentioned in the GitHUB repo. Also To practice these might be some good references in deploying RAG I have mentioned below some repo to check 
 + https://github.com/alfredodeza/learn-retrieval-augmented-generation?utm_source=chatgpt.com
   
 
-# Explaination of the code 
+# Explaination of the code (finetuning)
 For this project I used the google's infra 'google Colab' to host and run the project. Let us go through.
 
 Import the following libraries 
