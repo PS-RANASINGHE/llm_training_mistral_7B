@@ -44,7 +44,7 @@ For more information
 + https://www.researchgate.net/publication/385009890_A_Comprehensive_Survey_of_Retrieval-Augmented_Generation_RAG_Evolution_Current_Landscape_and_Future_Directions
 + https://www.researchgate.net/figure/Accuracy-Metrics-for-Baseline-and-Enhanced-RAG-Models_tbl2_381916508
 
-I have tried using the OpenAI's GPT 3.5 turbo. The code is mentioned in the GitHUB repo. Also To practice these might be some good references in deploying RAG I have mentioned below some repo to check 
+I have tried RAG using the OpenAI's GPT 3.5 turbo. I just created a PDF with the necessary data that i used to fine tune the modedl. The code is mentioned in the GitHUB repo. Also To practice these might be some good references in deploying RAG I have mentioned below some repo to check 
 + https://github.com/alfredodeza/learn-retrieval-augmented-generation?utm_source=chatgpt.com
   
 
